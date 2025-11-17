@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 export async function runGeminiReasoning(input: string, context: string) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const prompt = `Context: ${context}\n\nAnalyze and provide structured reasoning for: ${input}`
 
@@ -13,7 +13,7 @@ export async function runGeminiReasoning(input: string, context: string) {
 }
 
 export async function extractStructuredData(input: string, workflowType: string) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const prompts: Record<string, string> = {
     'doc-summary': `Extract a concise summary (2-3 sentences) and a JSON list of action items from this document.

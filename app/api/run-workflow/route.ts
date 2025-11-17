@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runOpusWorkflow } from '@/lib/opusClient'
 import { extractStructuredData } from '@/lib/geminiClient'
-import { getAdminDB } from '@/lib/firebase'
-import admin from 'firebase-admin'
 
 export async function POST(request: NextRequest) {
-  const db = getAdminDB()
-  let runRef: FirebaseFirestore.DocumentReference | null = null
-
   try {
     const formData = await request.formData()
     const workflow = formData.get('workflow') as string
     const input = formData.get('input') as string
     const file = formData.get('file') as File | null
-    const userId = formData.get('userId') || 'anonymous'
 
     if (!workflow || !input) {
       return NextResponse.json(
@@ -29,15 +23,6 @@ export async function POST(request: NextRequest) {
       processedInput = `${input}\n\nFile content:\n${text}`
     }
 
-    // Create workflow run document
-    runRef = await db.collection('workflowRuns').add({
-      workflow,
-      input: processedInput.substring(0, 500),
-      status: 'starting',
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      userId,
-    })
-
     const steps = []
 
     // Step 1: Extract & Clean
@@ -46,11 +31,6 @@ export async function POST(request: NextRequest) {
       status: 'completed',
       result: 'Input processed successfully',
       timestamp: new Date().toISOString(),
-    })
-
-    await db.collection('workflowRuns').doc(runRef.id).update({
-      status: 'processing',
-      steps,
     })
 
     // Step 2: Gemini Intelligence (HawkVision)
@@ -66,8 +46,6 @@ export async function POST(request: NextRequest) {
     steps[steps.length - 1].status = 'completed'
     steps[steps.length - 1].result = JSON.stringify(geminiData).substring(0, 200) + '...'
 
-    await db.collection('workflowRuns').doc(runRef.id).update({ steps })
-
     // Step 3: Opus Workflow Processing
     steps.push({
       name: 'Opus Workflow Processing',
@@ -81,8 +59,6 @@ export async function POST(request: NextRequest) {
     steps[steps.length - 1].status = 'completed'
     steps[steps.length - 1].result = opusResult.substring(0, 200) + '...'
 
-    await db.collection('workflowRuns').doc(runRef.id).update({ steps })
-
     // Step 4: Building Output
     steps.push({
       name: 'Building Output',
@@ -92,6 +68,7 @@ export async function POST(request: NextRequest) {
     })
 
     const finalResult = {
+      ok: true,
       workflow,
       input: processedInput.substring(0, 200),
       steps,
@@ -100,29 +77,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     }
 
-    // Update final status
-    await db.collection('workflowRuns').doc(runRef.id).update({
-      status: 'completed',
-      steps,
-      result: finalResult,
-      finishedAt: admin.firestore.FieldValue.serverTimestamp(),
-    })
-
-    return NextResponse.json({
-      ok: true,
-      id: runRef.id,
-      ...finalResult,
-    })
+    return NextResponse.json(finalResult)
   } catch (error: any) {
     console.error('Workflow error:', error)
-
-    if (runRef) {
-      await db.collection('workflowRuns').doc(runRef.id).update({
-        status: 'error',
-        error: error.message || String(error),
-        finishedAt: admin.firestore.FieldValue.serverTimestamp(),
-      })
-    }
 
     return NextResponse.json(
       {
