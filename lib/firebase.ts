@@ -1,9 +1,8 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
-import admin from 'firebase-admin'
 
-// Client-side Firebase
+// Client-side Firebase only
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,19 +15,3 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 export const db = getFirestore(app)
 export const storage = getStorage(app)
-
-// Server-side Firebase Admin
-export function getAdminDB() {
-  if (!admin.apps.length) {
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
-      ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON)
-      : {
-          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        }
-
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    })
-  }
-  return admin.firestore()
-}
