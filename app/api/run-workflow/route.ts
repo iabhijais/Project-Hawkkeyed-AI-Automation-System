@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { runOpusWorkflow } from '@/lib/opusClient'
-import { extractStructuredData } from '@/lib/geminiClient'
+import { extractStructuredData, generateDetailedAnalysis } from '@/lib/geminiClient'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,31 +32,31 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
-    // Step 2: Gemini Intelligence (HawkVision)
+    // Step 2: Gemini Intelligence - Structured Extraction
     steps.push({
-      name: 'HawkVision (Gemini Intelligence)',
+      name: 'HawkVision Analysis',
       status: 'running',
-      result: 'Analyzing with deep intelligence...',
+      result: 'Extracting structured data...',
       timestamp: new Date().toISOString(),
     })
 
     const geminiData = await extractStructuredData(processedInput, workflow)
 
     steps[steps.length - 1].status = 'completed'
-    steps[steps.length - 1].result = JSON.stringify(geminiData).substring(0, 200) + '...'
+    steps[steps.length - 1].result = 'Structured data extracted successfully'
 
-    // Step 3: Opus Workflow Processing
+    // Step 3: Gemini Intelligence - Detailed Analysis
     steps.push({
-      name: 'Opus Workflow Processing',
+      name: 'Deep Intelligence Processing',
       status: 'running',
-      result: 'Running AI workflow...',
+      result: 'Generating detailed analysis...',
       timestamp: new Date().toISOString(),
     })
 
-    const opusResult = await runOpusWorkflow(workflow, processedInput, geminiData)
+    const detailedAnalysis = await generateDetailedAnalysis(processedInput, geminiData, workflow)
 
     steps[steps.length - 1].status = 'completed'
-    steps[steps.length - 1].result = opusResult.substring(0, 200) + '...'
+    steps[steps.length - 1].result = 'Analysis completed successfully'
 
     // Step 4: Building Output
     steps.push({
@@ -73,7 +72,7 @@ export async function POST(request: NextRequest) {
       input: processedInput.substring(0, 200),
       steps,
       geminiData,
-      opusOutput: opusResult,
+      detailedAnalysis,
       timestamp: new Date().toISOString(),
     }
 

@@ -28,9 +28,7 @@ export default function InputSection({ onRun, isRunning, disabled }: InputSectio
   }
 
   return (
-    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-4">Input</h2>
-      
+    <div>
       <textarea
         value={input}
         onChange={(e) => {
@@ -38,13 +36,14 @@ export default function InputSection({ onRun, isRunning, disabled }: InputSectio
           setWarning('')
         }}
         placeholder="Paste document text, URL content, or data to analyze..."
-        className="w-full h-32 bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4 resize-none focus:outline-none focus:border-amber-500"
+        className="w-full h-40 backdrop-blur-sm bg-white/5 border-2 border-white/10 rounded-xl p-4 mb-4 resize-none focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all text-gray-200 placeholder-gray-500"
         disabled={disabled || isRunning}
       />
 
       {warning && (
-        <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-500/50 rounded-lg text-yellow-200 text-sm">
-          {warning}
+        <div className="mb-4 p-4 bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border-l-4 border-yellow-500 rounded-lg text-yellow-200 text-sm flex items-start gap-3">
+          <span className="text-xl">💡</span>
+          <span>{warning}</span>
         </div>
       )}
 
@@ -57,17 +56,34 @@ export default function InputSection({ onRun, isRunning, disabled }: InputSectio
             disabled={disabled || isRunning}
             accept=".txt,.pdf,.doc,.docx"
           />
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-3 cursor-pointer hover:border-gray-600 text-sm">
-            {file ? `📄 ${file.name}` : '📎 Upload file (optional)'}
+          <div className={`backdrop-blur-sm bg-white/5 border-2 rounded-xl p-4 cursor-pointer transition-all text-sm ${
+            file 
+              ? 'border-cyan-500/50 bg-cyan-500/10' 
+              : 'border-white/10 hover:border-white/20 hover:bg-white/10'
+          }`}>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{file ? '📄' : '📎'}</span>
+              <span className={file ? 'text-cyan-300' : 'text-gray-400'}>
+                {file ? file.name : 'Upload file (optional)'}
+              </span>
+            </div>
           </div>
         </label>
 
         <button
           onClick={handleSubmit}
           disabled={disabled || isRunning || (!input.trim() && !file)}
-          className="px-8 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors"
+          className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed rounded-xl font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-cyan-500/50 disabled:shadow-none text-white"
         >
-          {isRunning ? '⏳ Processing...' : '▶ Run Workflow'}
+          {isRunning ? (
+            <span className="flex items-center gap-2">
+              <span className="animate-spin">⏳</span> Processing...
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <span>▶</span> Run Workflow
+            </span>
+          )}
         </button>
       </div>
     </div>
