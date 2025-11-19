@@ -292,7 +292,7 @@ and offer a free 15-minute onboarding call next week.">💬 Client Follow-up Ema
                     src="/lablab.png"
                     alt="LabLab.ai"
                     fill
-                    className="object-cover invert dark:invert-0"
+                    className="object-cover"
                   />
                 </div>
                 <span className="group-hover:underline decoration-purple-500/50 underline-offset-4">LabLab.ai</span>
