@@ -177,9 +177,9 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
         pdf.setTextColor(40, 40, 40)
 
         // Subject
-        pdf.setFont(undefined, 'bold')
+        pdf.setFont('Helvetica', 'bold')
         pdf.text(`Subject: ${output.geminiData.emailDraft.subject || 'No Subject'}`, margin + 5, yPosition)
-        pdf.setFont(undefined, 'normal')
+        pdf.setFont('Helvetica', 'normal')
         yPosition += 8
 
         // Body
