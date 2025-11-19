@@ -188,28 +188,33 @@ export default function Home() {
                 className="px-4 py-2 bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg text-gray-600 dark:text-gray-400 text-sm focus:outline-none focus:border-cyan-500/50 focus:text-gray-900 dark:focus:text-white transition-colors cursor-pointer hover:bg-gray-200 dark:hover:bg-black/60"
               >
                 <option value="">💡 Select a Demo Scenario</option>
-                <option value="Project: AI Analytics Platform Launch
-Timeline: Q4 2024
-Budget: $50,000
-Key Objectives:
-1. Develop real-time dashboard using Next.js
-2. Integrate Gemini API for predictive insights
-3. Beta launch by Nov 15th
-Risks: API rate limits, data privacy compliance.
-Team: Sarah (Lead), Mike (Backend), Jessica (UI/UX).">📄 Project Brief Summary</option>
-                <option value="https://en.wikipedia.org/wiki/Artificial_intelligence_marketing">🔗 Market Research (URL)</option>
-                <option value="Month,Users,Revenue,Churn
-Jan,1200,15000,2.5%
-Feb,1450,18500,2.1%
-Mar,1800,24000,1.8%
-Apr,2200,31000,1.5%
-May,2800,42000,1.2%">📊 Q1 Growth Metrics</option>
-                <option value="Meeting Notes:
-- Client: TechCorp Inc.
-- Date: Oct 24
-- Decisions: Approved Phase 1 design. Requested dark mode option.
-- Action Items: Send contract by Friday (John). Schedule dev kickoff (Sarah).
-- Next Meeting: Nov 1st, 10 AM.">✉️ Client Follow-up Email</option>
+                <option value="AI Market Landscape 2025 Sample Report
+
+Artificial Intelligence (AI) adoption has accelerated globally across healthcare, finance, education, and enterprise automation.
+The AI market is projected to reach $407 billion by 2027, driven by generative AI, automation agents, and real-time decision systems.
+Major challenges include data privacy, model accuracy, hallucinations, and rising compute costs.
+Industry leaders like Google, OpenAI, Anthropic, and Meta continue pushing boundaries with multimodal models, enterprise tools, and ecosystem expansions.">📄 AI Market Report 2025</option>
+                <option value="https://www.talkesport.com/news/why-jonathan-is-best-player-india/">🔗 Esports Article Analysis – Jonathan</option>
+                <option value="Monthly Active User Growth (Sample Data)
+
+Month,Active Users
+Jan,1200
+Feb,1650
+Mar,2100
+Apr,2900
+May,3600
+Jun,4100
+Jul,4550
+Aug,5100
+Sep,5800
+Oct,6400
+Nov,6900
+Dec,7200">📊 Monthly User Growth Data</option>
+                <option value="Client Follow-up Email
+
+Draft a follow-up email for a client who attended an AI demo session last week.
+Thank them for joining, share the report link, summarize key features shown,
+and offer a free 15-minute onboarding call next week.">💬 Client Follow-up Email</option>
               </select>
             </div>
 
