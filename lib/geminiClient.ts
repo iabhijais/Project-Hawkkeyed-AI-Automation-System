@@ -28,17 +28,25 @@ Return ONLY valid JSON in this format:
   "tasks": [{"title": "...", "description": "...", "priority": "high|medium|low"}],
   "keyPoints": ["...", "..."]
 }`,
-    'url-extract': `Extract key facts and important information from this content.
-
-Content:
-${input}
-
-Return ONLY valid JSON in this format:
-{
-  "summary": "...",
-  "keyFacts": ["...", "...", "..."],
-  "actionItems": ["...", "..."]
-}`,
+    'url-extract': `Analyze this web content and extract structured intelligence.
+    
+    Content:
+    ${input}
+    
+    Return ONLY valid JSON in this exact format:
+    {
+      "keyFacts": ["Fact 1", "Fact 2", "Fact 3", "Fact 4", "Fact 5"],
+      "insights": {
+        "opportunities": ["..."],
+        "risks": ["..."],
+        "entities": ["..."],
+        "actions": ["..."]
+      },
+      "emailDraft": {
+        "subject": "Summary of: {Page Title}",
+        "body": "Hi {Recipient},\n\nHere is a quick summary of the article:\n\n- {Key Fact 1}\n- {Key Fact 2}\n- {Key Fact 3}\n\nMain takeaway:\n{Final Insight}\n\nRegards,\nProject Hawkkeyed – Web Extraction Module"
+      }
+    }`,
     'data-insights': `Analyze this data and provide insights.
 
 Data:
@@ -57,9 +65,11 @@ ${input}
 
 Return ONLY valid JSON in this format:
 {
-  "subject": "...",
-  "body": "...",
-  "tone": "professional|friendly|formal"
+  "emailDraft": {
+    "subject": "...",
+    "body": "...",
+    "tone": "professional|friendly|formal"
+  }
 }`,
   }
 
@@ -85,34 +95,43 @@ export async function generateDetailedAnalysis(
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
 
   const prompts: Record<string, string> = {
-    'doc-summary': `You are an expert document analyzer. Based on this structured analysis, create a comprehensive professional report.
-
-Structured Data:
-${JSON.stringify(structuredData, null, 2)}
-
-Original Input:
-${input}
-
-Create a detailed analysis that includes:
-1. Executive Summary (2-3 sentences)
-2. Key Findings (detailed explanation)
-3. Actionable Recommendations
-4. Next Steps
-
-Format as clear, professional text.`,
-    'url-extract': `You are a content analyst. Process this information and create an insightful summary.
-
-Extracted Data:
-${JSON.stringify(structuredData, null, 2)}
-
-Original Content:
-${input}
-
-Create:
-1. Brief Overview
-2. Key Takeaways (detailed)
-3. Important Action Items
-4. Implications`,
+    'doc-summary': `You are generating a clean, professional 1-page PDF report.
+    
+    Rules:
+    - DO NOT add headings like "Detailed Analysis", "Generated at", "Page 1 of 3", etc.
+    - Keep all content within 1 page (maximum 2 short pages).
+    - Use only these sections in this exact order:
+      1. Executive Summary
+      2. Key Insights (5 short bullets)
+      3. Performance Metrics (compact table)
+      4. Recommendations (4–6 bullets)
+      5. Conclusion (2 lines)
+    
+    Formatting:
+    - Keep paragraphs short (2–3 sentences maximum).
+    - No long explanations.
+    - No unnecessary details.
+    - No repeated content.
+    
+    Structured Data:
+    ${JSON.stringify(structuredData, null, 2)}
+    
+    Original Input:
+    ${input}`,
+    'url-extract': `You are a strategic analyst. Provide a high-level Executive Summary of this content.
+    
+    Extracted Data:
+    ${JSON.stringify(structuredData, null, 2)}
+    
+    Original Content:
+    ${input}
+    
+    Write a 2-3 paragraph narrative summary that:
+    1. Explains the core purpose/value of the content.
+    2. Highlights the most critical opportunity or risk.
+    3. Concludes with a strategic recommendation.
+    
+    Do NOT use bullet points here (we have them in the structured data). Write in clear, professional paragraphs.`,
     'data-insights': `You are a data analyst. Transform these insights into a comprehensive report.
 
 Analysis:

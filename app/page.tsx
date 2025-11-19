@@ -1,15 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Navbar from '@/components/Navbar'
+import Header from '@/components/Header'
 import WorkflowCard from '@/components/WorkflowCard'
 import InputSection from '@/components/InputSection'
 import OutputSection from '@/components/OutputSection'
 
 const workflows = [
-  { id: 'doc-summary', name: 'Document → Summary → PDF', icon: '📄' },
-  { id: 'url-extract', name: 'URL → Key Facts → Email', icon: '🔗' },
-  { id: 'data-insights', name: 'Data → Insights → Chart', icon: '📊' },
-  { id: 'chat-draft', name: 'Chat → Draft Email → Store', icon: '💬' },
+  {
+    id: 'doc-summary',
+    title: 'Document Intelligence',
+    description: 'Upload complex PDFs or docs. Get executive summaries, key insights, and action items instantly.',
+    icon: '📄',
+    color: 'cyan'
+  },
+  {
+    id: 'url-extract',
+    title: 'Web Extraction',
+    description: 'Paste any URL. Extract structured data, main content, and metadata automatically.',
+    icon: '🔗',
+    color: 'purple'
+  },
+  {
+    id: 'data-insights',
+    title: 'Data Insights',
+    description: 'Input raw data (CSV/JSON). Generate visualizations, trend analysis, and strategic recommendations.',
+    icon: '📊',
+    color: 'amber'
+  },
+  {
+    id: 'chat-draft',
+    title: 'Smart Assistant',
+    description: 'Draft emails, messages, or content with perfect tone and context. Your AI writing partner.',
+    icon: '💬',
+    color: 'emerald'
+  }
 ]
 
 export default function Home() {
@@ -17,9 +44,42 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false)
   const [output, setOutput] = useState<any>(null)
 
+  // Auto-scroll to output section when running or when output is ready
+  useEffect(() => {
+    if (isRunning || output) {
+      setTimeout(() => {
+        const element = document.getElementById('output-section')
+        if (element) {
+          const y = element.getBoundingClientRect().top + window.scrollY - 140
+          window.scrollTo({ top: y, behavior: 'smooth' })
+        }
+      }, 100)
+    }
+  }, [isRunning, output])
+
+  // Restore from History
+  useEffect(() => {
+    const restoreTask = localStorage.getItem('restoreTask')
+    if (restoreTask) {
+      try {
+        const task = JSON.parse(restoreTask)
+        setSelectedWorkflow(task.workflow)
+        setOutput(task.result)
+        // Dispatch event to update InputSection
+        setTimeout(() => {
+          const event = new CustomEvent('demoSelected', { detail: task.input })
+          window.dispatchEvent(event)
+        }, 500)
+        localStorage.removeItem('restoreTask')
+      } catch (e) {
+        console.error('Failed to restore task', e)
+      }
+    }
+  }, [])
+
   const handleRun = async (input: string, file?: File) => {
     if (!selectedWorkflow) return
-    
+
     setIsRunning(true)
     setOutput(null)
 
@@ -36,6 +96,20 @@ export default function Home() {
 
       const result = await response.json()
       setOutput(result)
+
+      // Save to History
+      if (result.ok) {
+        const historyItem = {
+          id: Date.now().toString(),
+          timestamp: new Date().toISOString(),
+          workflow: selectedWorkflow,
+          input: input.substring(0, 100) + (input.length > 100 ? '...' : ''),
+          result: result
+        }
+        const history = JSON.parse(localStorage.getItem('workflowHistory') || '[]')
+        history.unshift(historyItem)
+        localStorage.setItem('workflowHistory', JSON.stringify(history))
+      }
     } catch (error) {
       setOutput({ error: 'Workflow failed' })
     } finally {
@@ -44,68 +118,101 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-x-hidden">
+    <main className="min-h-screen overflow-x-hidden selection:bg-cyan-500/30">
+      <Navbar />
+
       {/* Subtle background gradient */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(6,182,212,0.05),transparent_50%)]"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl opacity-30"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl opacity-30"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12 relative z-10">
-        <header className="mb-8 md:mb-10 text-center">
-          <div className="inline-block mb-6">
-            <div className="backdrop-blur-xl bg-white/5 rounded-2xl px-8 py-6 border border-white/10 shadow-2xl">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <svg className="w-10 h-10 md:w-12 md:h-12 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C10.9 2 10 2.9 10 4C10 4.7 10.4 5.4 11 5.7V7C11 7 9.5 7.5 8.5 9C7.5 10.5 7 13 7 13H5C4.4 13 4 13.4 4 14C4 14.6 4.4 15 5 15H7C7 15 7.5 17.5 8.5 19C9.5 20.5 11 21 11 21V22.3C10.4 22.6 10 23.3 10 24H14C14 23.3 13.6 22.6 13 22.3V21C13 21 14.5 20.5 15.5 19C16.5 17.5 17 15 17 15H19C19.6 15 20 14.6 20 14C20 13.4 19.6 13 19 13H17C17 13 16.5 10.5 15.5 9C14.5 7.5 13 7 13 7V5.7C13.6 5.4 14 4.7 14 4C14 2.9 13.1 2 12 2M12 4.5C12.3 4.5 12.5 4.7 12.5 5C12.5 5.3 12.3 5.5 12 5.5C11.7 5.5 11.5 5.3 11.5 5C11.5 4.7 11.7 4.5 12 4.5Z"/>
-                </svg>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-cyan-400">
-                  HAWKKEYED
-                </h1>
-              </div>
-              <p className="text-xs font-mono text-cyan-400/70 tracking-wider">AI AUTOMATION SYSTEM</p>
-            </div>
-          </div>
-          
-          <p className="text-gray-400 text-sm md:text-base mb-1">
-            Workflow Intelligence System
-          </p>
-          <p className="text-gray-500 text-xs">
-            Sharp Vision • Precise Execution • Automated Intelligence
-          </p>
-        </header>
+      <Header />
+
+      <div className="max-w-6xl mx-auto px-4 relative z-10 pb-20">
 
         {/* Glass container for workflows */}
-        <div className="backdrop-blur-xl bg-white/5 rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl mb-6">
-          <h2 className="text-base md:text-lg font-semibold text-gray-200 mb-6 flex items-center flex-wrap">
-            <span className="flex items-center gap-1">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-sm font-bold shadow-lg">1</span>
-              <span className="text-gray-400">.</span>
-            </span>
-            <span className="ml-2">Select Workflow</span>
-            {!selectedWorkflow && <span className="text-xs text-gray-500">(Choose one to continue)</span>}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div id="workflows" className="backdrop-blur-3xl bg-white dark:bg-white/5 rounded-[2rem] p-8 md:p-10 border border-gray-200 dark:border-white/5 shadow-2xl mb-8 scroll-mt-32 relative overflow-hidden">
+          {/* Section Glow */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-50"></div>
+
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-sm border border-cyan-200 dark:border-cyan-500/30">1</span>
+              Select Intelligence Module
+            </h2>
+            {!selectedWorkflow && <span className="text-xs text-gray-500 uppercase tracking-wider font-medium animate-pulse">Select a module to begin</span>}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {workflows.map((workflow) => (
               <WorkflowCard
                 key={workflow.id}
                 workflow={workflow}
                 isSelected={selectedWorkflow === workflow.id}
-                onSelect={() => setSelectedWorkflow(workflow.id)}
+                onSelect={() => {
+                  setSelectedWorkflow(workflow.id)
+                  // Smooth scroll to the input section
+                  setTimeout(() => {
+                    const element = document.getElementById('input-section')
+                    if (element) {
+                      const y = element.getBoundingClientRect().top + window.scrollY - 140
+                      window.scrollTo({ top: y, behavior: 'smooth' })
+                    }
+                  }, 100)
+                }}
               />
             ))}
           </div>
         </div>
 
         {selectedWorkflow && (
-          <div className="backdrop-blur-xl bg-white/5 rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl mb-6">
-            <h2 className="text-base md:text-lg font-semibold text-gray-200 mb-6 flex items-center">
-              <span className="flex items-center gap-1">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-sm font-bold shadow-lg">2</span>
-                <span className="text-gray-400">.</span>
-              </span>
-              <span className="ml-2">Provide Input</span>
-            </h2>
+          <div id="input-section" className="backdrop-blur-3xl bg-white dark:bg-white/5 rounded-[2rem] p-8 md:p-10 border border-gray-200 dark:border-white/5 shadow-2xl mb-8 animate-fade-in-up">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-sm border border-cyan-200 dark:border-cyan-500/30">2</span>
+                Input Data Source
+              </h2>
+
+              {/* Demo Presets */}
+              <select
+                onChange={(e) => {
+                  const demo = e.target.value
+                  if (demo) {
+                    // Trigger input change in InputSection
+                    const event = new CustomEvent('demoSelected', { detail: demo })
+                    window.dispatchEvent(event)
+                  }
+                }}
+                className="px-4 py-2 bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-lg text-gray-600 dark:text-gray-400 text-sm focus:outline-none focus:border-cyan-500/50 focus:text-gray-900 dark:focus:text-white transition-colors cursor-pointer hover:bg-gray-200 dark:hover:bg-black/60"
+              >
+                <option value="">💡 Select a Demo Scenario</option>
+                <option value="Project: AI Analytics Platform Launch
+Timeline: Q4 2024
+Budget: $50,000
+Key Objectives:
+1. Develop real-time dashboard using Next.js
+2. Integrate Gemini API for predictive insights
+3. Beta launch by Nov 15th
+Risks: API rate limits, data privacy compliance.
+Team: Sarah (Lead), Mike (Backend), Jessica (UI/UX).">📄 Project Brief Summary</option>
+                <option value="https://en.wikipedia.org/wiki/Artificial_intelligence_marketing">🔗 Market Research (URL)</option>
+                <option value="Month,Users,Revenue,Churn
+Jan,1200,15000,2.5%
+Feb,1450,18500,2.1%
+Mar,1800,24000,1.8%
+Apr,2200,31000,1.5%
+May,2800,42000,1.2%">📊 Q1 Growth Metrics</option>
+                <option value="Meeting Notes:
+- Client: TechCorp Inc.
+- Date: Oct 24
+- Decisions: Approved Phase 1 design. Requested dark mode option.
+- Action Items: Send contract by Friday (John). Schedule dev kickoff (Sarah).
+- Next Meeting: Nov 1st, 10 AM.">✉️ Client Follow-up Email</option>
+              </select>
+            </div>
+
             <InputSection
               onRun={handleRun}
               isRunning={isRunning}
@@ -115,17 +222,81 @@ export default function Home() {
         )}
 
         {(isRunning || output) && (
-          <div className="backdrop-blur-xl bg-white/5 rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl mb-6">
-            <h2 className="text-base md:text-lg font-semibold text-gray-200 mb-6 flex items-center">
-              <span className="flex items-center gap-1">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 text-white text-sm font-bold shadow-lg">3</span>
-                <span className="text-gray-400">.</span>
-              </span>
-              <span className="ml-2">Results</span>
-            </h2>
+          <div id="output-section" className="backdrop-blur-3xl bg-white dark:bg-white/5 rounded-[2rem] p-8 md:p-10 border border-gray-200 dark:border-white/5 shadow-2xl mb-8 animate-fade-in-up">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-sm border border-cyan-200 dark:border-cyan-500/30">3</span>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Intelligent Output
+              </h2>
+            </div>
             <OutputSection output={output} isRunning={isRunning} />
           </div>
         )}
+
+        {/* Professional Footer */}
+        <footer className="mt-20 pt-10 border-t border-gray-200 dark:border-white/5">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+
+            {/* Branding & Credits */}
+            <div className="text-center md:text-left">
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Made with <span className="text-red-500 animate-pulse">❤️</span> by <a href="https://iabhijais.vercel.app/" target="_blank" className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 transition-colors font-bold">iabhijais</a>
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-600 mt-1 uppercase tracking-wider">
+                Powered by Google Gemini • Built for AI Genesis
+              </p>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-6">
+              <a
+                href="https://iabhijais.vercel.app/"
+                target="_blank"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm font-medium flex items-center gap-2 group"
+              >
+                <div className="relative w-5 h-5 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600 group-hover:border-cyan-500 dark:group-hover:border-cyan-400 transition-colors">
+                  <Image
+                    src="/iabhijais.ico"
+                    alt="Portfolio"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <span className="group-hover:underline decoration-cyan-500/50 underline-offset-4">Portfolio</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/iabhijais/"
+                target="_blank"
+                className="text-gray-500 dark:text-gray-400 hover:text-[#0A66C2] dark:hover:text-[#0A66C2] transition-colors text-sm font-medium flex items-center gap-2 group"
+              >
+                <div className="relative w-5 h-5">
+                  <Image
+                    src="/linkedin-icon.png"
+                    alt="LinkedIn"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="group-hover:underline decoration-[#0A66C2]/50 underline-offset-4">LinkedIn</span>
+              </a>
+              <a
+                href="https://lablab.ai/u/@iabhijais"
+                target="_blank"
+                className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-sm font-medium flex items-center gap-2 group"
+              >
+                <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                  <Image
+                    src="/lablab.png"
+                    alt="LabLab.ai"
+                    fill
+                    className="object-cover invert dark:invert-0"
+                  />
+                </div>
+                <span className="group-hover:underline decoration-purple-500/50 underline-offset-4">LabLab.ai</span>
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </main>
   )
