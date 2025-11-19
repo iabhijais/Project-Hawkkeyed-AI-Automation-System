@@ -195,21 +195,19 @@ The AI market is projected to reach $407 billion by 2027, driven by generative A
 Major challenges include data privacy, model accuracy, hallucinations, and rising compute costs.
 Industry leaders like Google, OpenAI, Anthropic, and Meta continue pushing boundaries with multimodal models, enterprise tools, and ecosystem expansions.">📄 AI Market Report 2025</option>
                 <option value="https://www.talkesport.com/news/why-jonathan-is-best-player-india/">🔗 Esports Article Analysis – Jonathan</option>
-                <option value="Monthly Active User Growth (Sample Data)
-
-Month,Active Users
+                <option value="Month,Active Users
 Jan,1200
-Feb,1650
-Mar,2100
-Apr,2900
-May,3600
-Jun,4100
-Jul,4550
-Aug,5100
-Sep,5800
-Oct,6400
-Nov,6900
-Dec,7200">📊 Monthly User Growth Data</option>
+Feb,1450
+Mar,1600
+Apr,2100
+May,2600
+Jun,3100
+Jul,3400
+Aug,4200
+Sep,4800
+Oct,5400
+Nov,6000
+Dec,6800">📊 Monthly User Growth Data</option>
                 <option value="Client Follow-up Email
 
 Draft a follow-up email for a client who attended an AI demo session last week.
