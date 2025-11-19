@@ -35,16 +35,13 @@ Return ONLY valid JSON in this format:
     
     Return ONLY valid JSON in this exact format:
     {
+      "summary": "A concise 2-3 sentence summary of the content.",
       "keyFacts": ["Fact 1", "Fact 2", "Fact 3", "Fact 4", "Fact 5"],
       "insights": {
         "opportunities": ["..."],
         "risks": ["..."],
         "entities": ["..."],
         "actions": ["..."]
-      },
-      "emailDraft": {
-        "subject": "Summary of: {Page Title}",
-        "body": "Hi {Recipient},\n\nHere is a quick summary of the article:\n\n- {Key Fact 1}\n- {Key Fact 2}\n- {Key Fact 3}\n\nMain takeaway:\n{Final Insight}\n\nRegards,\nProject Hawkkeyed – Web Extraction Module"
       }
     }`,
     'data-insights': `Analyze this data and provide insights.

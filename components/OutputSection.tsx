@@ -288,6 +288,16 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
     )
   }
 
+  if (output?.error) {
+    return (
+      <div id="output-section" className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 text-center text-red-200 backdrop-blur-sm">
+        <h3 className="text-xl font-bold mb-2">Workflow Failed</h3>
+        <p>{output.error}</p>
+        <p className="text-sm mt-2 opacity-75">Please try again. This might be due to a temporary server timeout.</p>
+      </div>
+    )
+  }
+
   if (!output) return null
 
   const modalContent = getModalContent()
