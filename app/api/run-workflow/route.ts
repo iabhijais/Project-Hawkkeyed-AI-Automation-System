@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const input = formData.get('input') as string
     const file = formData.get('file') as File | null
 
-    if (!workflow || !input) {
+    if (!workflow || (!input && !file)) {
       return NextResponse.json(
         { error: 'Missing workflow or input' },
         { status: 400 }
@@ -16,10 +16,16 @@ export async function POST(request: NextRequest) {
     }
 
     let processedInput = input
+    let fileData: { mimeType: string; data: string } | undefined
 
     if (file) {
-      const text = await file.text()
-      processedInput = `${input}\n\nFile content:\n${text}`
+      const arrayBuffer = await file.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      fileData = {
+        mimeType: file.type,
+        data: buffer.toString('base64')
+      }
+      processedInput = input ? `${input}\n\n[File attached: ${file.name}]` : `[File attached: ${file.name}]`
     }
 
     const steps = []
@@ -40,7 +46,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
-    const geminiData = await extractStructuredData(processedInput, workflow)
+    const geminiData = await extractStructuredData(processedInput, workflow, fileData)
 
     steps[steps.length - 1].status = 'completed'
     steps[steps.length - 1].result = 'Structured data extracted successfully'
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
 
-    const detailedAnalysis = await generateDetailedAnalysis(processedInput, geminiData, workflow)
+    const detailedAnalysis = await generateDetailedAnalysis(processedInput, geminiData, workflow, fileData)
 
     steps[steps.length - 1].status = 'completed'
     steps[steps.length - 1].result = 'Analysis completed successfully'
@@ -69,7 +75,7 @@ export async function POST(request: NextRequest) {
     const finalResult = {
       ok: true,
       workflow,
-      input: processedInput.substring(0, 200),
+      input: processedInput,
       steps,
       geminiData,
       detailedAnalysis,

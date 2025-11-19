@@ -12,7 +12,11 @@ export async function runGeminiReasoning(input: string, context: string) {
   return response.text()
 }
 
-export async function extractStructuredData(input: string, workflowType: string) {
+export async function extractStructuredData(
+  input: string,
+  workflowType: string,
+  fileData?: { mimeType: string; data: string }
+) {
   // Try gemini-2.0-flash-001 as fallback if 2.5 is overloaded
   let model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
 
@@ -70,8 +74,19 @@ Return ONLY valid JSON in this format:
 }`,
   }
 
-  const prompt = prompts[workflowType] || prompts['doc-summary']
-  const result = await model.generateContent(prompt)
+  const promptText = prompts[workflowType] || prompts['doc-summary']
+
+  const parts: any[] = [promptText]
+  if (fileData) {
+    parts.push({
+      inlineData: {
+        mimeType: fileData.mimeType,
+        data: fileData.data
+      }
+    })
+  }
+
+  const result = await model.generateContent(parts)
   const response = await result.response
   const text = response.text()
 
@@ -87,14 +102,16 @@ Return ONLY valid JSON in this format:
 export async function generateDetailedAnalysis(
   input: string,
   structuredData: any,
-  workflowType: string
+  workflowType: string,
+  fileData?: { mimeType: string; data: string }
 ) {
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
 
   const prompts: Record<string, string> = {
-    'doc-summary': `You are generating a clean, professional 1-page PDF report.
+    'doc-summary': `You are generating a clean, professional 1-page report in Markdown format.
     
     Rules:
+    - DO NOT include any markdown code block fences (like \`\`\`markdown).
     - DO NOT add headings like "Detailed Analysis", "Generated at", "Page 1 of 3", etc.
     - Keep all content within 1 page (maximum 2 short pages).
     - Use only these sections in this exact order:
@@ -105,6 +122,7 @@ export async function generateDetailedAnalysis(
       5. Conclusion (2 lines)
     
     Formatting:
+    - Use standard Markdown for bolding (**text**) and lists.
     - Keep paragraphs short (2–3 sentences maximum).
     - No long explanations.
     - No unnecessary details.
@@ -153,8 +171,19 @@ ${input}
 Create a well-formatted professional communication with proper structure and tone.`,
   }
 
-  const prompt = prompts[workflowType] || prompts['doc-summary']
-  const result = await model.generateContent(prompt)
+  const promptText = prompts[workflowType] || prompts['doc-summary']
+
+  const parts: any[] = [promptText]
+  if (fileData) {
+    parts.push({
+      inlineData: {
+        mimeType: fileData.mimeType,
+        data: fileData.data
+      }
+    })
+  }
+
+  const result = await model.generateContent(parts)
   const response = await result.response
   return response.text()
 }

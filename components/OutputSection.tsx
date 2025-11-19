@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import Loader from './Loader'
 import DataChart from './DataChart'
 import jsPDF from 'jspdf'
+import ReactMarkdown from 'react-markdown'
 
 interface OutputSectionProps {
   output: any
@@ -30,6 +31,18 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
     const margin = 20
     const maxWidth = pageWidth - 2 * margin
     let yPosition = 20
+
+    // Helper to strip Markdown
+    const stripMarkdown = (text: string) => {
+      if (!text) return ''
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+        .replace(/\*(.*?)\*/g, '$1')     // Italic
+        .replace(/#{1,6}\s/g, '')        // Headings
+        .replace(/`{3}[\s\S]*?`{3}/g, '') // Code blocks
+        .replace(/`/g, '')               // Inline code
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+    }
 
     // Helper for Footer
     const addFooter = () => {
@@ -102,8 +115,12 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
 
       pdf.setFontSize(10)
       pdf.setTextColor(60, 60, 60)
-      const summaryText = output.geminiData?.summary || output.detailedAnalysis || ''
-      const lines = pdf.splitTextToSize(summaryText, maxWidth)
+
+      // Use detailedAnalysis if available, otherwise summary
+      let rawText = output.detailedAnalysis || output.geminiData?.summary || ''
+      const cleanText = stripMarkdown(rawText)
+
+      const lines = pdf.splitTextToSize(cleanText, maxWidth)
       lines.forEach((line: string) => {
         checkPageBreak(6)
         pdf.text(line, margin, yPosition)
@@ -357,9 +374,25 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
             <span>📊</span>
             <span>Detailed Analysis</span>
           </h3>
-          <div className="bg-gray-900/50 rounded-xl p-5 max-h-96 overflow-y-auto">
-            <div className="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm">
-              {output.detailedAnalysis}
+          <div className="bg-gray-900/50 rounded-xl p-5 max-h-96 overflow-y-auto custom-scrollbar">
+            <div className="prose prose-invert prose-sm max-w-none">
+              <ReactMarkdown
+                components={{
+                  h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-cyan-300 mb-3 mt-4" {...props} />,
+                  h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-cyan-200 mb-2 mt-3" {...props} />,
+                  h3: ({ node, ...props }) => <h3 className="text-md font-bold text-cyan-100 mb-2 mt-2" {...props} />,
+                  p: ({ node, ...props }) => <p className="text-gray-300 mb-3 leading-relaxed" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="list-disc pl-5 mb-3 text-gray-300" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal pl-5 mb-3 text-gray-300" {...props} />,
+                  li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                  strong: ({ node, ...props }) => <strong className="text-white font-semibold" {...props} />,
+                  table: ({ node, ...props }) => <div className="overflow-x-auto mb-4"><table className="min-w-full border-collapse border border-gray-700" {...props} /></div>,
+                  th: ({ node, ...props }) => <th className="border border-gray-700 bg-gray-800 px-4 py-2 text-left text-cyan-300" {...props} />,
+                  td: ({ node, ...props }) => <td className="border border-gray-700 px-4 py-2 text-gray-300" {...props} />,
+                }}
+              >
+                {output.detailedAnalysis}
+              </ReactMarkdown>
             </div>
           </div>
         </div>

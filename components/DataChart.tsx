@@ -34,6 +34,7 @@ interface DataChartProps {
 export default function DataChart({ data }: DataChartProps) {
   // Parse data to extract numbers
   const parseData = () => {
+    console.log('DataChart raw data:', JSON.stringify(data))
     const lines = data.split('\n').filter(line => line.trim())
     const labels: string[] = []
     const values: number[] = []
@@ -51,7 +52,7 @@ export default function DataChart({ data }: DataChartProps) {
       const csvParts = line.split(',')
       if (csvParts.length >= 2) {
         const label = csvParts[0].trim().replace(/^"|"$/g, '')
-        const valueStr = csvParts[1].trim().replace(/^"|"$/g, '')
+        const valueStr = csvParts[1].trim().replace(/^"|"$/g, '').replace(/,/g, '')
         const value = parseFloat(valueStr)
 
         if (!isNaN(value)) {
