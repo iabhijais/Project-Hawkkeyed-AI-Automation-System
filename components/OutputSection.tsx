@@ -423,32 +423,7 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
                   </div>
                 )}
 
-                {/* Email Draft */}
-                {output.geminiData.emailDraft && (
-                  <div className="bg-gray-900/50 rounded-xl p-4 border border-white/5">
-                    <div className="flex justify-between items-center mb-3">
-                      <h4 className="font-semibold text-sm text-gray-400 uppercase tracking-wide">Email Draft</h4>
-                      <button
-                        onClick={() => {
-                          const text = `Subject: ${output.geminiData.emailDraft.subject}\n\n${output.geminiData.emailDraft.body}`
-                          navigator.clipboard.writeText(text)
-                        }}
-                        className="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-cyan-300 transition-colors"
-                      >
-                        Copy Email
-                      </button>
-                    </div>
-                    <div className="space-y-3 text-sm text-gray-300 font-mono bg-black/30 p-4 rounded-lg">
-                      <div>
-                        <span className="text-gray-500 select-none">Subject: </span>
-                        <span className="text-white">{output.geminiData.emailDraft.subject}</span>
-                      </div>
-                      <div className="whitespace-pre-wrap border-t border-white/10 pt-3 mt-2">
-                        {output.geminiData.emailDraft.body}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Email Draft Removed for Web Extraction */}
               </>
             ) : output.workflow === 'chat-draft' ? (
               /* Smart Assistant (Chat Draft) Specific Layout */
