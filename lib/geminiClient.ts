@@ -2,12 +2,30 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
-export async function runGeminiReasoning(input: string, context: string) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
+// Helper to handle rate limits with fallback
+async function generateWithFallback(parts: any) {
+  try {
+    // Try Gemini 2.0 Flash first (Newer, might be rate limited)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
+    return await model.generateContent(parts)
+  } catch (error: any) {
+    const errString = error.toString()
+    // Check for rate limit (429) or overload (503)
+    if (errString.includes('429') || errString.includes('503')) {
+      console.warn('Gemini 2.0 Flash rate limited/overloaded. Falling back to Gemini 1.5 Flash.')
 
+      // Fallback to Gemini 1.5 Flash (Stable, higher limits)
+      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      return await fallbackModel.generateContent(parts)
+    }
+    throw error
+  }
+}
+
+export async function runGeminiReasoning(input: string, context: string) {
   const prompt = `Context: ${context}\n\nAnalyze and provide structured reasoning for: ${input}`
 
-  const result = await model.generateContent(prompt)
+  const result = await generateWithFallback([prompt])
   const response = await result.response
   return response.text()
 }
@@ -17,9 +35,6 @@ export async function extractStructuredData(
   workflowType: string,
   fileData?: { mimeType: string; data: string }
 ) {
-  // Try gemini-2.0-flash-001 as fallback if 2.5 is overloaded
-  let model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
-
   const prompts: Record<string, string> = {
     'doc-summary': `Extract a concise summary (2-3 sentences) and a JSON list of action items from this document.
 
@@ -86,7 +101,7 @@ Return ONLY valid JSON in this format:
     })
   }
 
-  const result = await model.generateContent(parts)
+  const result = await generateWithFallback(parts)
   const response = await result.response
   const text = response.text()
 
@@ -105,8 +120,6 @@ export async function generateDetailedAnalysis(
   workflowType: string,
   fileData?: { mimeType: string; data: string }
 ) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
-
   const prompts: Record<string, string> = {
     'doc-summary': `You are generating a clean, professional 1-page report in Markdown format.
     
@@ -183,7 +196,7 @@ Create a well-formatted professional communication with proper structure and ton
     })
   }
 
-  const result = await model.generateContent(parts)
+  const result = await generateWithFallback(parts)
   const response = await result.response
   return response.text()
 }
