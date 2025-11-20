@@ -97,10 +97,10 @@ export default function AnalyticsPage() {
         <main className="min-h-screen bg-gray-50 dark:bg-[#0B0F19] transition-colors duration-300">
             <Navbar />
 
-            <div className="pt-32 pb-20 px-4 max-w-7xl mx-auto">
-                <div className="mb-10">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Analytics Dashboard</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Insights into your automation usage and performance.</p>
+            <div className="pt-24 sm:pt-32 pb-20 px-4 max-w-7xl mx-auto">
+                <div className="mb-8 sm:mb-10">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">Analytics Dashboard</h1>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Insights into your automation usage and performance.</p>
                 </div>
 
                 {/* Stats Grid */}

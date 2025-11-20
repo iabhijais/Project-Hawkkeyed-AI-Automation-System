@@ -70,17 +70,17 @@ export default function HistoryPage() {
         <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl opacity-30"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 pt-32 pb-20 relative z-10">
-        <div className="flex items-center justify-between mb-10">
+      <div className="max-w-6xl mx-auto px-4 pt-24 sm:pt-32 pb-20 relative z-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-10 gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Workflow History</h1>
-            <p className="text-gray-400">Track your recent AI automation tasks</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Workflow History</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Track your recent AI automation tasks</p>
           </div>
 
           {history.length > 0 && (
             <button
               onClick={clearHistory}
-              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-sm transition-colors"
+              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-sm transition-colors whitespace-nowrap"
             >
               Clear History
             </button>
