@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import MobileMenu from './MobileMenu'
 
 export default function Navbar() {
     const pathname = usePathname()
@@ -44,14 +45,8 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    <div className="md:hidden">
-                        <Link
-                            href="/documentation"
-                            className="px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition-all duration-200"
-                        >
-                            Quick Start
-                        </Link>
-                    </div>
+                    {/* Mobile: Hamburger Menu */}
+                    <MobileMenu />
                 </div>
             </div>
         </nav>
