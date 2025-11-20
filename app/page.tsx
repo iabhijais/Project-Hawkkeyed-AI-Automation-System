@@ -289,7 +289,7 @@ and offer a free 15-minute onboarding call next week.">💬 Client Follow-up Ema
               >
                 <div className="relative w-5 h-5 rounded-full overflow-hidden">
                   <Image
-                    src="/lablab.png"
+                    src="/lablabnew.png"
                     alt="LabLab.ai"
                     fill
                     className="object-cover"

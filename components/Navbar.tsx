@@ -21,7 +21,7 @@ export default function Navbar() {
                                 className="object-cover"
                             />
                         </div>
-                        <span className="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-cyan-500 to-blue-600 dark:from-white dark:via-cyan-200 dark:to-cyan-500">
+                        <span className="text-base sm:text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-cyan-500 to-blue-600 dark:from-white dark:via-cyan-200 dark:to-cyan-500">
                             PROJECT HAWKKEYED
                         </span>
                     </Link>
@@ -44,11 +44,10 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Mobile: Quick Start Button */}
                     <div className="md:hidden">
                         <Link
                             href="/documentation"
-                            className="px-5 py-2 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-sm font-semibold shadow-lg shadow-cyan-500/20 transition-all duration-200 transform hover:scale-105"
+                            className="px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold shadow-lg shadow-cyan-500/20 transition-all duration-200"
                         >
                             Quick Start
                         </Link>
