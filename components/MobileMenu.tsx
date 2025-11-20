@@ -67,11 +67,14 @@ export default function MobileMenu() {
 
             {/* Slide-in Menu */}
             <div
-                className={`fixed top-0 right-0 h-full w-72 bg-gradient-to-b from-gray-900 to-black border-l border-white/10 z-50 transform transition-transform duration-300 ease-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 h-full w-72 bg-[#0B0F19]/95 backdrop-blur-2xl border-l border-cyan-500/20 shadow-2xl shadow-black/50 z-50 transform transition-transform duration-300 ease-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+
                 {/* Menu Header */}
-                <div className="p-6 border-b border-white/10">
+                <div className="relative p-6 border-b border-white/10">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                             Menu
@@ -87,7 +90,7 @@ export default function MobileMenu() {
                 </div>
 
                 {/* Menu Items */}
-                <nav className="p-4 space-y-2">
+                <nav className="relative p-4 space-y-2">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href
                         return (
@@ -110,7 +113,7 @@ export default function MobileMenu() {
                 </nav>
 
                 {/* Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10">
+                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10 bg-black/30 backdrop-blur-xl">
                     <div className="text-center">
                         <p className="text-xs text-gray-500 mb-2">Powered by</p>
                         <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
