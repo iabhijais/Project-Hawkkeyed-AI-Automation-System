@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   title: 'Project HawkkEyed - AI Automation System',
   description: 'AI-powered automation workflows with sharp vision and precise execution',
   icons: {
-    icon: '/logo.jpg',
-    apple: '/logo.jpg',
+    icon: '/logo new.ico',
+    apple: '/logo new.ico',
   },
 }
 

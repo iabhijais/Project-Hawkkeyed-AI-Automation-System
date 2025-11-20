@@ -16,7 +16,7 @@ export default function Navbar() {
                     <Link href="/" className="flex-shrink-0 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
                             <Image
-                                src="/logo.jpg"
+                                src="/logo new.ico"
                                 alt="Hawkkeyed Logo"
                                 fill
                                 className="object-cover"
