@@ -2,24 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
-// Helper to handle rate limits with fallback
 async function generateWithFallback(parts: any) {
-  try {
-    // Try Gemini 2.0 Flash first (Newer, might be rate limited)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-001' })
-    return await model.generateContent(parts)
-  } catch (error: any) {
-    const errString = error.toString()
-    // Check for rate limit (429) or overload (503)
-    if (errString.includes('429') || errString.includes('503')) {
-      console.warn('Gemini 2.0 Flash rate limited/overloaded. Falling back to Gemini 1.5 Flash.')
-
-      // Fallback to Gemini 1.5 Flash (Stable, higher limits)
-      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-      return await fallbackModel.generateContent(parts)
-    }
-    throw error
-  }
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  return await model.generateContent(parts)
 }
 
 export async function runGeminiReasoning(input: string, context: string) {
