@@ -84,7 +84,7 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
       const maxLength = 75
       const sourceStr = cleanInput.length > maxLength ? cleanInput.substring(0, maxLength) + '...' : (cleanInput || 'N/A')
 
-      pdf.text(`Generated for: Abhishek Jaisal | Date: ${dateStr} | Model: Gemini 2.0 Flash`, margin, 30)
+      pdf.text(`Generated for: Abhishek Jaisal | Date: ${dateStr} | Model: Gemini 2.5 Flash`, margin, 30)
       pdf.text(`Source: ${sourceStr}`, margin, 34)
 
       yPosition = 55 // Increased spacing to ensure no overlap
@@ -241,7 +241,7 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
     yPosition += 5
     pdf.setFontSize(8)
     pdf.setTextColor(150, 150, 150)
-    pdf.text('Methodology: This report was generated using Google Gemini 2.0 Flash, utilizing advanced semantic extraction to identify key entities, risks, and opportunities from the source content.', margin, yPosition, { maxWidth: maxWidth })
+    pdf.text('Methodology: This report was generated using Google Gemini 2.5 Flash, utilizing advanced semantic extraction to identify key entities, risks, and opportunities from the source content.', margin, yPosition, { maxWidth: maxWidth })
 
     // Add footer to the last page
     addFooter()
