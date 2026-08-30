@@ -13,7 +13,7 @@ Project Goals:
 
 Key Deliverables:
 1. Frontend dashboard with React/Next.js
-2. Backend pipeline using Firebase and Cloud Functions
+2. Backend pipeline using localStorage and Cloud Functions
 3. Integration with Twitch API for stream data
 4. Machine learning model for highlight detection
 5. Automated report generation system
@@ -113,9 +113,9 @@ Sarah: I'll draft the project timeline
    - Click "Run Workflow"
    - Watch the real-time processing steps
 
-3. **Check Firestore:**
-   - Go to Firebase Console
-   - Navigate to Firestore Database
+3. **Check localStorage:**
+   - Go to localStorage Console
+   - Navigate to localStorage Database
    - Check `workflowRuns` collection
    - Verify documents are being created with status updates
 
@@ -127,7 +127,7 @@ Each workflow should show these steps in real-time:
 
 1. ✓ **Extracting & Cleaning** - Input processed successfully
 2. ⟳ **HawkVision (Gemini Intelligence)** - Analyzing with deep intelligence...
-3. ⟳ **Opus Workflow Processing** - Running AI workflow...
+3. ⟳ **Report generation** - Turning the structured data into a report...
 4. ✓ **Building Output** - Workflow completed successfully
 
 ---
@@ -136,5 +136,5 @@ Each workflow should show these steps in real-time:
 
 If you don't have an Anthropic API key, the system runs in demo mode:
 - Gemini still processes and extracts structured data
-- Opus step returns a demo response showing the Gemini analysis
+- Each pipeline stage is timed around its real call and shown in the UI
 - All logging and history features work normally

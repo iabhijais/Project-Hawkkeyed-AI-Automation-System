@@ -80,7 +80,7 @@ export default function DocumentationPage() {
                     <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                         <li className="flex items-start gap-3">
                             <span className="text-cyan-500 mt-1">✓</span>
-                            <span><strong className="text-gray-900 dark:text-white">Powered by Google Gemini 1.5 Pro:</strong> State-of-the-art AI model for maximum accuracy</span>
+                            <span><strong className="text-gray-900 dark:text-white">Powered by Google Gemini 2.5 Flash:</strong> Two-stage pipeline — strict JSON extraction, then report generation</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="text-cyan-500 mt-1">✓</span>

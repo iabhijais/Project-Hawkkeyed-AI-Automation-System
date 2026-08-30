@@ -7,9 +7,10 @@ interface InputSectionProps {
   isRunning: boolean
   disabled: boolean
   initialValue?: string
+  workflow?: string | null
 }
 
-export default function InputSection({ onRun, isRunning, disabled, initialValue = '' }: InputSectionProps) {
+export default function InputSection({ onRun, isRunning, disabled, initialValue = '', workflow = null }: InputSectionProps) {
   const [input, setInput] = useState(initialValue)
   const [file, setFile] = useState<File | null>(null)
   const [warning, setWarning] = useState('')
@@ -40,15 +41,31 @@ export default function InputSection({ onRun, isRunning, disabled, initialValue 
     onRun(input, file || undefined)
   }
 
+  // Web Extraction now fetches the page server-side, so say so here — the
+  // affordance is useless if the placeholder still asks for pasted text.
+  const placeholder =
+    workflow === 'url-extract'
+      ? 'Paste a URL (https://…) and it will be fetched and read, or paste the text directly.'
+      : workflow === 'data-insights'
+        ? 'Paste CSV or structured data to analyse…'
+        : workflow === 'chat-draft'
+          ? 'Paste the conversation to turn into a draft…'
+          : 'Paste document text, or upload a file below…'
+
   return (
     <div>
+      <label htmlFor="workflow-input" className="sr-only">
+        Workflow input
+      </label>
       <textarea
+        id="workflow-input"
+        aria-label="Workflow input"
         value={input}
         onChange={(e) => {
           setInput(e.target.value)
           setWarning('')
         }}
-        placeholder="Paste document text, URL content, or data to analyze..."
+        placeholder={placeholder}
         className="w-full h-40 backdrop-blur-sm bg-white/5 border-2 border-white/10 rounded-xl p-4 mb-4 resize-none focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all text-gray-200 placeholder-gray-500"
         disabled={disabled || isRunning}
         onKeyDown={(e) => {

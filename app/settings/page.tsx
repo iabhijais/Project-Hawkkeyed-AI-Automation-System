@@ -105,7 +105,7 @@ export default function SettingsPage() {
                             </div>
                             <div className="flex justify-between">
                                 <span>Powered By</span>
-                                <span className="font-medium text-cyan-600 dark:text-cyan-400">Google Gemini 1.5 Pro</span>
+                                <span className="font-medium text-cyan-600 dark:text-cyan-400">Google Gemini 2.5 Flash</span>
                             </div>
                         </div>
                     </section>

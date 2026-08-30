@@ -30,7 +30,7 @@ export default function AnalyticsPage() {
     const [stats, setStats] = useState({
         totalRuns: 0,
         mostUsed: 'None',
-        successRate: '100%'
+        successRate: 'N/A'
     })
     const [chartData, setChartData] = useState<any>(null)
 
@@ -48,10 +48,18 @@ export default function AnalyticsPage() {
 
         const mostUsed = Object.entries(workflowCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None'
 
+        // Real success rate from stored outcomes. Runs saved before outcome
+        // tracking existed have no `ok` field, so they are excluded rather
+        // than counted as successes.
+        const withOutcome = storedHistory.filter((item: any) => typeof item?.ok === 'boolean')
+        const successRate = withOutcome.length > 0
+            ? `${Math.round((withOutcome.filter((item: any) => item.ok).length / withOutcome.length) * 100)}%`
+            : 'N/A'
+
         setStats({
             totalRuns,
             mostUsed: formatWorkflowName(mostUsed),
-            successRate: totalRuns > 0 ? '100%' : 'N/A' // Assuming all saved are successful for now
+            successRate
         })
 
         // Prepare Chart Data
