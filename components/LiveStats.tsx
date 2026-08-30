@@ -16,11 +16,13 @@ interface Stat {
   hint: string
 }
 
+// Before anything has been run, show facts that are true on a first visit
+// rather than a row of placeholder dashes, which reads as broken.
 const EMPTY: Stat[] = [
   { label: 'Workflows', value: '4', hint: 'Document, web, data and chat pipelines' },
-  { label: 'Runs here', value: '—', hint: 'Run a workflow to populate this' },
-  { label: 'Avg. response', value: '—', hint: 'Measured on this device' },
-  { label: 'Last run', value: '—', hint: 'Nothing yet' },
+  { label: 'Model', value: '2.5 Flash', hint: 'Google Gemini 2.5 Flash' },
+  { label: 'Stages / run', value: '2', hint: 'Structured extraction, then report generation' },
+  { label: 'Runs here', value: 'None yet', hint: 'Your runs are counted on this device only' },
 ]
 
 function relativeTime(iso: string): string {
@@ -60,17 +62,23 @@ export default function LiveStats() {
       : '—'
 
     setStats([
-      { label: 'Workflows', value: '4', hint: 'Document, web, data and chat pipelines' },
-      { label: 'Runs here', value: String(history.length), hint: 'Stored in this browser' },
+      { label: 'Runs here', value: String(history.length), hint: 'Stored in this browser only' },
       {
         label: 'Avg. response',
         value: avgMs ? (avgMs >= 1000 ? `${(avgMs / 1000).toFixed(1)}s` : `${avgMs}ms`) : '—',
         hint: durations.length ? `Measured across ${durations.length} runs` : 'Not measured yet',
       },
       {
-        label: history.length && withOutcome.length ? 'Success rate' : 'Last run',
-        value: withOutcome.length ? successRate : relativeTime(history[0].timestamp),
-        hint: withOutcome.length ? `Across ${withOutcome.length} runs on this device` : 'On this device',
+        label: 'Success rate',
+        value: successRate,
+        hint: withOutcome.length
+          ? `${withOutcome.filter((item: any) => item.ok).length} of ${withOutcome.length} runs succeeded`
+          : 'No runs with a recorded outcome yet',
+      },
+      {
+        label: 'Last run',
+        value: relativeTime(history[0].timestamp),
+        hint: new Date(history[0].timestamp).toLocaleString(),
       },
     ])
   }, [])
@@ -83,7 +91,13 @@ export default function LiveStats() {
           title={stat.hint}
           className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_0_20px_#00f2ff14] hover:bg-white/10 transition-all duration-300 hover:-translate-y-1"
         >
-          <div className="text-2xl md:text-3xl font-bold text-white tracking-tight">{stat.value}</div>
+          <div
+            className={`font-bold text-white tracking-tight ${
+              stat.value.length > 6 ? 'text-lg md:text-xl' : 'text-2xl md:text-3xl'
+            }`}
+          >
+            {stat.value}
+          </div>
           <div className="text-[10px] md:text-xs text-cyan-200/70 uppercase tracking-widest font-bold mt-1">
             {stat.label}
           </div>

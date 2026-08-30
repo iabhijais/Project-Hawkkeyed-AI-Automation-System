@@ -152,7 +152,7 @@ export default function Home() {
 
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 pt-32 pb-20 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 pt-10 md:pt-14 pb-20 relative z-10">
 
         {/* Glass container for workflows */}
         <div id="workflows" className="backdrop-blur-3xl bg-white dark:bg-white/5 rounded-[2rem] p-8 md:p-10 border border-gray-200 dark:border-white/5 shadow-2xl mb-8 scroll-mt-32 relative overflow-hidden">

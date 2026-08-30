@@ -171,12 +171,27 @@ export default function AnalyticsPage() {
                                             </span>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">{formatWorkflowName(item.workflow)}</p>
-                                                <p className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleDateString()}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {new Date(item.timestamp).toLocaleString()}
+                                                    {Number.isFinite(item.durationMs) ? ` · ${(item.durationMs / 1000).toFixed(1)}s` : ''}
+                                                </p>
                                             </div>
                                         </div>
-                                        <span className="text-xs font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-900/30 px-2 py-1 rounded">
-                                            Completed
-                                        </span>
+                                        {/* The real outcome. This badge used to read "Completed" for
+                                            every entry, including failed runs. */}
+                                        {item.ok === false ? (
+                                            <span className="text-xs font-mono text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">
+                                                Failed
+                                            </span>
+                                        ) : item.ok === true ? (
+                                            <span className="text-xs font-mono text-cyan-600 dark:text-cyan-400 bg-cyan-100 dark:bg-cyan-900/30 px-2 py-1 rounded">
+                                                Completed
+                                            </span>
+                                        ) : (
+                                            <span className="text-xs font-mono text-gray-500 bg-gray-200 dark:bg-white/5 px-2 py-1 rounded">
+                                                Unknown
+                                            </span>
+                                        )}
                                     </div>
                                 ))
                             ) : (
