@@ -1,276 +1,108 @@
 # 🦅 Project Hawkkeyed
 
-**AI Automation & Workflow Intelligence System**
+**AI workflow automation — documents, web pages, data and conversations in, structured reports out.**
 
-Project Hawkkeyed transforms a single user instruction into a complete multi-step workflow using Opus + Gemini. It features a real-time workflow runner built with Next.js + Firebase, intelligent reasoning powered by Gemini, and a sleek dashboard for viewing logs and outputs.
+Built for the AI Genesis Hackathon, November 2025.
+Live: **https://hawkkeyed.vercel.app**
 
-## 🔥 Key Features
+---
 
-- **Multi-Step Opus Workflows** - Predefined AI workflows for documents, URLs, data, and chat
-- **Real-Time Workflow Runner UI** - Live status updates with Next.js
-- **HawkVision (Gemini Intelligence)** - Deep reasoning and structured extraction
-- **File & Link Processing** - Upload files or paste URLs
-- **History & Saved Logs** - Every run saved in Firestore
+## What it does
 
-## 🏗️ Tech Stack
+Four workflows, all running the same two-stage pipeline:
 
-- **Frontend**: Next.js 14, Tailwind CSS, Framer Motion
-- **Backend**: Firebase (Firestore, Storage)
-- **AI**: Anthropic Claude (Opus), Google Gemini 1.5 Flash
+| Workflow | Input | Output |
+|---|---|---|
+| **Document Intelligence** | Pasted text or an uploaded PDF/image | Summary, action items with priorities, key points |
+| **Web Extraction** | A URL — fetched and read server-side | Summary, key facts, opportunities/risks/entities/actions |
+| **Data Insights** | CSV or structured data | Insights, recommendations, a rendered chart |
+| **Smart Assistant** | A conversation | A professional email draft |
 
-## 🚀 Getting Started
+Every run produces a downloadable PDF.
 
-### 1. Install dependencies
+## The pipeline
+
+```
+input ──► [1] Structured extraction ──► strict JSON
+              gemini-2.5-flash              │
+                                            ▼
+          [2] Report generation ──────► markdown report
+              gemini-2.5-flash
+```
+
+Two calls, not one. The first pass is constrained to return JSON so the UI has typed fields to render — key facts, priorities, chart data. The second pass takes that JSON plus the original input and writes prose. Splitting them is what makes the output renderable instead of a wall of text.
+
+Files and images are sent to the model as `inlineData` with their real mime type, so PDFs and screenshots are read natively rather than being pre-parsed.
+
+**The UI shows the real pipeline.** Each stage is timed around its actual call, and a stage that is skipped or fails says so. If the URL fetch fails, you see it fall back to treating your input as text — the timeline is not decoration.
+
+## Tech stack
+
+- **Next.js 16** (App Router) + React 19, TypeScript
+- **Google Gemini 2.5 Flash** via `@google/generative-ai` — the only model used
+- **Tailwind CSS 4**, Framer Motion
+- **Chart.js** for data visualisation, **jsPDF** for export
+- Deployed on **Vercel**
+
+### Where state lives
+
+Run history and analytics are stored in **browser `localStorage`**, capped at the last 100 runs. There is no database and no account system — history is per-device, and clearing site data clears it. For a demo this is a deliberate trade: no auth, no backend, nothing to leak.
+
+## Running locally
+
 ```bash
 npm install
 ```
 
-### 2. Configure Firebase
+Create `.env.local`:
 
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Enable Firestore Database
-3. Enable Storage (optional)
-4. Get your Firebase config from Project Settings
-
-### 3. Get API Keys
-
-**Google Gemini (Required):**
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create an API key
-3. Add to `.env.local` as `GEMINI_API_KEY`
-
-**Anthropic Claude (Optional):**
-1. Sign up at [console.anthropic.com](https://console.anthropic.com)
-2. Get API key from settings
-3. Add to `.env.local` as `ANTHROPIC_API_KEY`
-4. Note: System works in demo mode without this key
-
-### 4. Configure environment variables
-
-Edit `.env.local` with your keys:
-
-```env
-# Google Gemini API (Required)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Anthropic API (Optional - runs in demo mode without it)
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-
-# Firebase Config
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+GEMINI_API_KEY=your_key_here
 ```
 
-### 5. Run development server
+Get a key from [Google AI Studio](https://aistudio.google.com/app/apikey). Then:
+
 ```bash
 npm run dev
 ```
 
-### 6. Test the system
+Open http://localhost:3000. Without a key the API returns a clear 503 rather than a confusing SDK error.
 
-1. Open `http://localhost:3000`
-2. Select a workflow
-3. Use test data from `TEST_DATA.md`
-4. Watch real-time processing
-5. Check Firestore for saved runs
+## Deploying
 
-## 📁 Project Structure
+Push to GitHub and import the repo in Vercel. Add `GEMINI_API_KEY` under Settings → Environment Variables for all environments, then deploy. No other configuration is needed.
 
-```
-project-hawkkeyed/
-├── app/
-│   ├── page.tsx              # Main dashboard
-│   ├── layout.tsx            # Root layout
-│   ├── globals.css           # Global styles
-│   ├── history/              # History page
-│   └── api/
-│       └── run-workflow/     # Workflow API endpoint
-├── components/
-│   ├── WorkflowCard.tsx      # Workflow selection cards
-│   ├── InputSection.tsx      # Input form
-│   ├── OutputSection.tsx     # Results display
-│   └── Loader.tsx            # Loading animation
-├── lib/
-│   ├── firebase.ts           # Firebase setup
-│   ├── opusClient.ts         # Anthropic Claude client
-│   └── geminiClient.ts       # Google Gemini client
-└── README.md
-```
+## Limits and guards
 
-## 🎯 How It Works
+The `/api/run-workflow` endpoint is public and runs on a personal API key, so it enforces:
 
-1. User selects a workflow (Document, URL, Data, or Chat)
-2. Enters input or uploads a file
-3. Clicks "Run Workflow"
-4. System processes through multiple AI steps:
-   - Extracting & Cleaning
-   - Opus Workflow Processing
-   - Gemini Reasoning
-   - Building Output
-5. Results displayed in real-time
-6. Workflow saved to Firestore history
+- **Rate limit** — 10 requests per minute per IP
+- **Uploads** — 10 MB cap, and only PDF, plain text, CSV, Markdown, PNG, JPEG, WebP
+- **URL fetching** — https only, 10s timeout, 2 MB cap, 50k characters after stripping markup, and private/loopback/link-local addresses are rejected (SSRF)
+- **Errors** — messages are returned, stack traces are logged server-side only
 
-## 🦅 Workflows Available
+## What it does not do
 
-- **Document → Summary → PDF** - Analyze documents and create summaries
-- **URL → Key Facts → Email** - Extract insights from web content
-- **Data → Insights → Chart** - Analyze data and generate reports
-- **Chat → Draft Email → Store** - Convert conversations to emails
+- No persistence across devices or browsers — `localStorage` only
+- No authentication, no multi-user separation
+- Web Extraction reads static HTML; it does not execute JavaScript, so client-rendered pages come back thin
+- No streaming — you wait for both stages, typically a few seconds
+- One model. Earlier drafts of this README described a Gemini → Claude chain and a Firestore backend; neither was ever wired up, and the dead modules have been removed rather than left to imply a system that did not exist.
 
-## 📝 License
-
-MIT
-
-
-## 🧪 Testing
-
-See `TEST_DATA.md` for sample inputs to test each workflow type.
-
-### Quick Test Flow
-
-1. Start server: `npm run dev`
-2. Open browser: `http://localhost:3000`
-3. Select "Document → Summary → PDF" workflow
-4. Paste test data from `TEST_DATA.md`
-5. Click "Run Workflow"
-6. Watch real-time steps execute
-7. View structured output from Gemini + Claude
-
-### Verify in Firebase
-
-1. Go to Firebase Console
-2. Open Firestore Database
-3. Check `workflowRuns` collection
-4. Each run should have:
-   - `status`: "completed" or "error"
-   - `steps`: Array of processing steps
-   - `result`: Final output data
-   - `createdAt` and `finishedAt` timestamps
-
-## 🚀 Deployment
-
-### Deploy to Vercel
-
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard:
-   - `GEMINI_API_KEY`
-   - `ANTHROPIC_API_KEY` (optional)
-   - All `NEXT_PUBLIC_FIREBASE_*` variables
-4. Deploy
-
-### Firebase Security Rules
-
-Add these rules to Firestore:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /workflowRuns/{document=**} {
-      allow read: if true;
-      allow write: if false; // Only server can write
-    }
-  }
-}
-```
-
-## 🎯 Workflow Types
-
-### 1. Document → Summary → PDF
-- Extracts summary, tasks, and key points
-- Formats for professional output
-- Ideal for: Reports, briefs, documentation
-
-### 2. URL → Key Facts → Email
-- Extracts key facts from content
-- Identifies action items
-- Creates email-ready format
-- Ideal for: Articles, research, web content
-
-### 3. Data → Insights → Chart
-- Analyzes data patterns
-- Provides insights and recommendations
-- Suggests visualizations
-- Ideal for: Analytics, metrics, reports
-
-### 4. Chat → Draft Email → Store
-- Converts conversations to emails
-- Professional tone and formatting
-- Extracts action items
-- Ideal for: Meeting notes, discussions
-
-## 🔧 Architecture Details
-
-### AI Processing Flow
+## Repository layout
 
 ```
-User Input
-    ↓
-Step 1: Extract & Clean
-    ↓
-Step 2: Gemini Intelligence (HawkVision)
-    - Structured data extraction
-    - JSON parsing
-    - Context analysis
-    ↓
-Step 3: Opus/Claude Processing
-    - Deep reasoning
-    - Professional formatting
-    - Final output generation
-    ↓
-Step 4: Save to Firestore
-    - Log workflow run
-    - Store results
-    - Track status
-    ↓
-Display Results
+app/
+  page.tsx                  workflow picker, run handler, history writes
+  api/run-workflow/route.ts the pipeline: guards, URL fetch, both model calls
+  analytics/  history/  settings/  documentation/
+components/
+  InputSection  OutputSection  PipelineTimeline  LiveStats  DataChart  …
+lib/
+  geminiClient.ts           prompts and both model stages
+  fetchUrl.ts               server-side page retrieval with SSRF guards
 ```
 
-### API Endpoints
+---
 
-- `POST /api/run-workflow` - Execute workflow
-  - Body: FormData with `workflow`, `input`, optional `file`
-  - Returns: Workflow results with steps and outputs
-
-## 📊 Monitoring
-
-### Check Workflow Status
-
-```javascript
-// In Firebase Console or client code
-const runs = await db.collection('workflowRuns')
-  .orderBy('createdAt', 'desc')
-  .limit(10)
-  .get()
-```
-
-### View History
-
-Navigate to `/history` page to see all past workflow runs.
-
-## 🐛 Troubleshooting
-
-### "Error evaluating Node.js code"
-- Make sure all dependencies are installed: `npm install`
-- Check that `.env.local` has valid API keys
-
-### "Firebase not initialized"
-- Verify Firebase config in `.env.local`
-- Check Firebase project is active
-
-### "Gemini API error"
-- Verify `GEMINI_API_KEY` is correct
-- Check API quota in Google AI Studio
-
-### Workflows not saving
-- Check Firestore is enabled in Firebase Console
-- Verify Firebase security rules allow server writes
-
-## 📝 License
-
-MIT
+*Built for the AI Genesis Hackathon, 2025.*

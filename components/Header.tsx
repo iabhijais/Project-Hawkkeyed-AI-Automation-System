@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import LiveStats from './LiveStats'
 
 export default function Header() {
   return (
@@ -59,20 +60,8 @@ export default function Header() {
               </a>
             </div>
 
-            {/* Glass Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-              {[
-                { label: 'Accuracy', value: '99.9%' },
-                { label: 'Workflows', value: '4+' },
-                { label: 'Latency', value: '<50ms' },
-                { label: 'Uptime', value: '100%' },
-              ].map((stat, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_0_20px_#00f2ff14] hover:bg-white/10 transition-all duration-300 hover:-translate-y-1">
-                  <div className="text-2xl md:text-3xl font-bold text-white tracking-tight">{stat.value}</div>
-                  <div className="text-[10px] md:text-xs text-cyan-200/70 uppercase tracking-widest font-bold mt-1">{stat.label}</div>
-                </div>
-              ))}
-            </div>
+            {/* Stats measured from this browser's own runs, not hardcoded */}
+            <LiveStats />
 
           </div>
         </div>

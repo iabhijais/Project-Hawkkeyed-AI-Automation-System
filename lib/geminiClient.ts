@@ -1,16 +1,28 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+export const GEMINI_MODEL = 'gemini-2.5-flash'
 
-async function generateWithFallback(parts: any) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+/** Whether the server has a key configured. Checked before any request so a
+ *  missing key surfaces as a clear 503 instead of an opaque SDK error. */
+export function isGeminiConfigured(): boolean {
+  return Boolean(process.env.GEMINI_API_KEY)
+}
+
+function client() {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured on the server.')
+  return new GoogleGenerativeAI(apiKey)
+}
+
+async function generate(parts: any) {
+  const model = client().getGenerativeModel({ model: GEMINI_MODEL })
   return await model.generateContent(parts)
 }
 
 export async function runGeminiReasoning(input: string, context: string) {
   const prompt = `Context: ${context}\n\nAnalyze and provide structured reasoning for: ${input}`
 
-  const result = await generateWithFallback([prompt])
+  const result = await generate([prompt])
   const response = await result.response
   return response.text()
 }
@@ -86,14 +98,19 @@ Return ONLY valid JSON in this format:
     })
   }
 
-  const result = await generateWithFallback(parts)
+  const result = await generate(parts)
   const response = await result.response
   const text = response.text()
 
-  // Extract JSON from response
+  // Extract JSON from the response. A malformed object must not throw past
+  // here — it should degrade to the raw text, which the UI can still render.
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (jsonMatch) {
-    return JSON.parse(jsonMatch[0])
+    try {
+      return JSON.parse(jsonMatch[0])
+    } catch {
+      return { summary: text, raw: true, parseFailed: true }
+    }
   }
 
   return { summary: text, raw: true }
@@ -181,7 +198,7 @@ Create a well-formatted professional communication with proper structure and ton
     })
   }
 
-  const result = await generateWithFallback(parts)
+  const result = await generate(parts)
   const response = await result.response
   return response.text()
 }

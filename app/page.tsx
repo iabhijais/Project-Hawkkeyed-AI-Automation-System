@@ -78,11 +78,22 @@ export default function Home() {
     }
   }, [])
 
+  const saveToHistory = (item: any) => {
+    try {
+      const history = JSON.parse(localStorage.getItem('workflowHistory') || '[]')
+      history.unshift(item)
+      localStorage.setItem('workflowHistory', JSON.stringify(history.slice(0, 100)))
+    } catch {
+      // A full or unavailable localStorage must not break the run.
+    }
+  }
+
   const handleRun = async (input: string, file?: File) => {
     if (!selectedWorkflow) return
 
     setIsRunning(true)
     setOutput(null)
+    const startedAt = Date.now()
 
     try {
       const formData = new FormData()
@@ -96,23 +107,33 @@ export default function Home() {
       })
 
       const result = await response.json()
-      setOutput(result)
+      const durationMs = Date.now() - startedAt
+      setOutput({ ...result, durationMs })
 
-      // Save to History
-      if (result.ok) {
-        const historyItem = {
-          id: Date.now().toString(),
-          timestamp: new Date().toISOString(),
-          workflow: selectedWorkflow,
-          input: input.substring(0, 100) + (input.length > 100 ? '...' : ''),
-          result: result
-        }
-        const history = JSON.parse(localStorage.getItem('workflowHistory') || '[]')
-        history.unshift(historyItem)
-        localStorage.setItem('workflowHistory', JSON.stringify(history))
-      }
+      // Save every run, successful or not — the analytics page reports a real
+      // success rate rather than assuming everything stored worked.
+      saveToHistory({
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        workflow: selectedWorkflow,
+        input: input.substring(0, 100) + (input.length > 100 ? '...' : ''),
+        ok: Boolean(result.ok),
+        durationMs,
+        result,
+      })
     } catch (error) {
-      setOutput({ error: 'Workflow failed' })
+      const durationMs = Date.now() - startedAt
+      const message = error instanceof Error ? error.message : 'Workflow failed'
+      setOutput({ ok: false, error: message, durationMs })
+      saveToHistory({
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        workflow: selectedWorkflow,
+        input: input.substring(0, 100) + (input.length > 100 ? '...' : ''),
+        ok: false,
+        durationMs,
+        result: { ok: false, error: message },
+      })
     } finally {
       setIsRunning(false)
     }
@@ -221,6 +242,7 @@ and offer a free 15-minute onboarding call next week.">💬 Client Follow-up Ema
               onRun={handleRun}
               isRunning={isRunning}
               disabled={!selectedWorkflow}
+              workflow={selectedWorkflow}
             />
           </div>
         )}
