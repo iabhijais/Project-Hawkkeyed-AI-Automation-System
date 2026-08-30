@@ -6,6 +6,7 @@ import Loader from './Loader'
 import DataChart from './DataChart'
 import jsPDF from 'jspdf'
 import ReactMarkdown from 'react-markdown'
+import PipelineTimeline from './PipelineTimeline'
 
 interface OutputSectionProps {
   output: any
@@ -307,10 +308,13 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
 
   if (output?.error) {
     return (
-      <div id="output-section" className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 text-center text-red-200 backdrop-blur-sm">
-        <h3 className="text-xl font-bold mb-2">Workflow Failed</h3>
-        <p>{output.error}</p>
-        <p className="text-sm mt-2 opacity-75">Please try again. This might be due to a temporary server timeout.</p>
+      <div id="output-section" className="space-y-4">
+        <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-6 text-center text-red-200 backdrop-blur-sm">
+          <h3 className="text-xl font-bold mb-2">Workflow Failed</h3>
+          <p>{output.error}</p>
+          <p className="text-sm mt-2 opacity-75">The pipeline below shows how far it got.</p>
+        </div>
+        <PipelineTimeline steps={output.steps} totalMs={output.totalMs} model={output.model} />
       </div>
     )
   }
@@ -321,6 +325,13 @@ export default function OutputSection({ output, isRunning }: OutputSectionProps)
 
   return (
     <div className="space-y-6 relative">
+      <PipelineTimeline
+        steps={output.steps}
+        totalMs={output.totalMs}
+        model={output.model}
+        fetchedFrom={output.fetchedFrom}
+      />
+
       {/* Success Modal - Portaled to body */}
       {mounted && showSuccessModal && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in-up">

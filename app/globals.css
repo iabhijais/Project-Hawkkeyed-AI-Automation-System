@@ -10,6 +10,22 @@
     animation: fadeInUp 0.8s ease-out forwards;
   }
 
+  /* Used in OutputSection but never defined, so those elements popped in
+     without the intended fade. */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
   @keyframes gradient {
 
     0%,
@@ -67,4 +83,22 @@ body {
 /* Hide horizontal scrollbar */
 ::-webkit-scrollbar:horizontal {
   display: none;
+}
+
+/* Respect the OS "reduce motion" setting. The gradient loop in particular runs
+   forever and is exactly what this preference exists to stop. */
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
